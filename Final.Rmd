@@ -2,9 +2,8 @@
 title: "BMT Data Analysis"
 author: "Dhiraj Khanna"
 date: "27 September 2016"
-output:
-  html_document:
-    keep_md: true  
+     html_document:  
+        keep_md: true  
 ---
 
 ```{r setup, include=FALSE}
