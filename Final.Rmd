@@ -1,0 +1,213 @@
+---
+title: "BMT Data Analysis"
+author: "Dhiraj Khanna"
+date: "27 September 2016"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This analysis is with the new data.
+
+##Analysis on Death Date
+
+### Overall
+
+```{r,warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(survival)
+library(lubridate)
+library(tidyr)
+library(broom)
+library(survminer)
+
+#Read in the data
+BMT <- read.csv("BMT_Latest.csv",na.strings=c("", "NA"))
+
+#Select variables of interest
+BMT1 <- select(BMT, TypeOfMM, Transplant.Date, C.Status,Death.date, Last.Follow.up,M.protein..,RenalFailure,Plasmacytoma,RelapseDate,ISS,TotalNoTherapy,RemissionStatusPreTx,RemissionStatusPostTx)
+BMT1$Transplant.Date <- dmy(BMT1$Transplant.Date)
+BMT1$Last.Follow.up <- dmy(BMT1$Last.Follow.up)
+BMT1$Death.date <- dmy(BMT1$Death.date)
+BMT1$RelapseDate <- dmy(BMT1$RelapseDate)
+
+#Create censoring indicator variable for death
+cenin_dead <- rep(1, nrow(BMT1))
+for (i in 1:nrow(BMT1)) ifelse(BMT1$C.Status[i]!='Dead',cenin_dead[i] <- 0,cenin_dead[i] <- 1)
+
+#Replace 'NA' death dates with LFU dates
+index <- which(is.na(BMT1$Death.date))
+BMT1$Death.date[index] <- BMT1$Last.Follow.up[index]
+
+#Find time difference
+BMT1 <- mutate(BMT1, TD=as.numeric(Death.date-Transplant.Date))
+surv_data <- cbind(BMT1,cenin_dead)
+
+```
+
+Now let's plot the KM survival distribution for overall death.
+
+```{r}
+fit_overall <- survfit(Surv(surv_data$TD,surv_data$cenin_dead)~1,conf.type = "log-log")
+ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4)
+```
+
+We can have a look at the model.
+```{r}
+summary(fit_overall)
+```
+
+### Renal Failure
+
+```{r}
+RF <- na.omit(select(surv_data, RenalFailure, TD, cenin_dead))
+fit_RF <- survfit(Surv(TD,cenin_dead)~RenalFailure,data=RF)
+ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4)
+summary(fit_RF)
+```
+
+### Plasmacytoma
+
+```{r}
+PC <- na.omit(select(surv_data, Plasmacytoma, TD, cenin_dead))
+fit_PC <- survfit(Surv(TD,cenin_dead)~Plasmacytoma,data=PC)
+ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4)
+summary(fit_PC)
+```
+
+### Remission Status Before
+
+```{r}
+RSPre <- na.omit(select(surv_data, RemissionStatusPreTx, TD, cenin_dead))
+fit_RSPre <- survfit(Surv(TD,cenin_dead)~RemissionStatusPreTx,data=RSPre)
+ggsurvplot(fit_RSPre,risk.table = T,risk.table.height = 0.4)
+summary(fit_RSPre)
+```
+
+### Remission Status After
+
+```{r}
+RSPost <- na.omit(select(surv_data, RemissionStatusPostTx, TD, cenin_dead))
+fit_RSPost <- survfit(Surv(TD,cenin_dead)~RemissionStatusPostTx,data=RSPost)
+ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4)
+summary(fit_RSPost)
+```
+
+### Number of Therapies
+
+```{r}
+thp <- na.omit(select(surv_data, TotalNoTherapy, TD, cenin_dead))
+fit_thp <- survfit(Surv(TD,cenin_dead)~TotalNoTherapy,data=thp)
+ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4)
+summary(fit_thp)
+```
+
+### ISS
+
+Values 'II' and 'III' have been coerced to a single value - 'II'.
+
+```{r}
+iss <- na.omit(select(surv_data, ISS, TD, cenin_dead))
+iss[iss=='III',] <- "II"
+iss$ISS <- factor(iss$ISS)
+iss$TD <- as.numeric(iss$TD)
+iss$cenin_dead <- as.numeric(iss$cenin_dead)
+fit_iss <- survfit(Surv(TD,cenin_dead)~ISS,data=iss)
+ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4)
+summary(fit_thp)
+```
+
+## Analysis on Relapse Date
+
+```{r}
+#Create censoring indicator variable for relapse date
+relapse <- rep(1, nrow(surv_data))
+for (i in 1:nrow(surv_data)) ifelse(is.na(surv_data$RelapseDate[i]),relapse[i] <- 0,relapse[i] <- 1)
+
+#Replace 'NA' death dates with LFU dates
+index <- which(is.na(surv_data$RelapseDate))
+surv_data$RelapseDate[index] <- surv_data$Last.Follow.up[index]
+
+#time difference for transplant - relapse
+surv_data <- mutate(surv_data, TD_R=as.numeric(RelapseDate-Transplant.Date))
+rlp_data <- cbind(surv_data,relapse)
+```
+
+Now that the data is ready, we can do a similar analysis. Start off with an overall analysis.
+
+```{r}
+fit_overall <- survfit(Surv(rlp_data$TD_R,rlp_data$relapse)~1,conf.type = "log-log")
+ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4)
+```
+
+We can have a look at the model.
+```{r}
+summary(fit_overall)
+```
+
+### Renal Failure
+
+```{r}
+RF <- na.omit(select(rlp_data, RenalFailure, TD_R, relapse))
+fit_RF <- survfit(Surv(TD_R,relapse)~RenalFailure,data=RF)
+ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4)
+summary(fit_RF)
+```
+
+### Plasmacytoma
+
+```{r}
+PC <- na.omit(select(rlp_data, Plasmacytoma, TD_R, relapse))
+fit_PC <- survfit(Surv(TD_R,relapse)~Plasmacytoma,data=PC)
+ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4)
+summary(fit_PC)
+```
+
+### Remission Status Before
+
+```{r}
+RSPre <- na.omit(select(rlp_data, RemissionStatusPreTx, TD_R, relapse))
+fit_RSPre <- survfit(Surv(TD_R,relapse)~RemissionStatusPreTx,data=RSPre)
+ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4)
+summary(fit_RSPre)
+```
+
+### Remission Status After
+
+```{r}
+RSPost <- na.omit(select(rlp_data, RemissionStatusPostTx, TD_R, relapse))
+fit_RSPost <- survfit(Surv(TD_R,relapse)~RemissionStatusPostTx,data=RSPost)
+ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4)
+summary(fit_RSPost)
+```
+
+### Number of Therapies
+
+```{r}
+thp <- na.omit(select(rlp_data, TotalNoTherapy, TD_R, relapse))
+fit_thp <- survfit(Surv(TD_R,relapse)~TotalNoTherapy,data=thp)
+ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4)
+summary(fit_thp)
+```
+
+### ISS
+
+Values 'II' and 'III' have been coerced to a single value - 'II'.
+
+```{r}
+iss <- na.omit(select(rlp_data, ISS, TD_R, relapse))
+iss[iss=='III',] <- "II"
+iss$ISS <- factor(iss$ISS)
+iss$TD_R <- as.numeric(iss$TD_R)
+iss$relapse <- as.numeric(iss$relapse)
+fit_iss <- survfit(Surv(TD_R,relapse)~ISS,data=iss)
+ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4)
+summary(fit_thp)
+```
+

@@ -1,0 +1,82 @@
+---
+title: "Survival Analysis - BMT Data"
+author: "Dhiraj Khanna"
+date: "23 September 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Not knowing the time of death of individuals leads to censoring. This situation arises if some individuals manage to outlive the experiment or they leave the experiment before they die. The last follow up date might be available for such individuals but there exists no way of determining their age at death. 
+
+Another reason for censoring is loss of individuals to the study. They may be killed in accidents, change their location, etc. Hence the survival data is a mixture of times at death and times after which we have no more information on the individual. The standard practice in such cases is to establish a *censoring indicator* which distinguishes between the two types of numbers. This indicator/vector takes on the value 1 in case date of death is available and a value of 0 in case the time value is the last time the individual was sighted alive. 
+
+## BMT Data
+
+The `R` statistical programming language provides packages to analyze survival data. In particular, the `survival` and `KMsurv` packages contain useful functions for this sort of analysis. 
+
+The dataset comprises of 148 observations of 42 different variables. The variables of interest are `TypeOfMM`, `Transplant.Date`, `C.Status` (Current Status), `Death.date` and `LFU.Date`.
+
+```{r,warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(survival)
+library(lubridate)
+library(tidyr)
+library(broom)
+
+#Read in the data
+BMT <- read.csv("BMT_2.csv")
+
+#Select variables of interest
+BMT1 <- select(BMT, TypeOfMM, Transplant.Date, C.Status,Death.date, LFU.Date,M.protein..,RenalFailure,Plasmacytoma,RemissionStatusPostTx,RelapseDate,ISS,Therapy)
+BMT1$Transplant.Date <- dmy(BMT1$Transplant.Date)
+BMT1$LFU.Date <- dmy(BMT1$LFU.Date)
+BMT1$Death.date <- dmy(BMT1$Death.date)
+BMT1$RelapseDate <- dmy(BMT1$RelapseDate)
+#Create censoring indicator variable
+cenin <- rep(1, nrow(BMT1))
+for (i in 1:nrow(BMT1)) ifelse(BMT1$C.Status[i]!='Dead',cenin[i] <- 0,cenin[i] <- 1)
+
+#Replace 'NA' death dates with LFU dates
+index <- which(is.na(BMT1$Death.date))
+BMT1$Death.date[index] <- BMT1$LFU.Date[index]
+
+#Find time difference
+BMT1 <- mutate(BMT1, TD=as.numeric(Death.date-Transplant.Date))
+surv_data <- cbind(BMT1,cenin)
+
+
+#Remove missing values
+surv_data_final <- na.omit(surv_data)
+surv_data_final$TypeOfMM[126] <- "IgG"
+surv_data_final$TypeOfMM <- factor(surv_data_final$TypeOfMM)
+# surv_data_final$death <- as.numeric(surv_data_final$death)
+# surv_data_final$status <- as.numeric(surv_data_final$status)
+attach(surv_data)
+plot(survfit(Surv(TD,cenin)~TypeOfMM),ylab="Surivorship",xlab="Days")
+
+#model
+model <- survfit(Surv(TD,cenin)~TypeOfMM)
+summary(model)
+plot(model,lty=c(1,4),ylab="Survivorship",xlab="Days")
+
+
+
+# ggplot2 version of the plot
+tongue_tidy = tidy(survfit(Surv(TD,cenin)~TypeOfMM))
+mx = max(tongue_tidy$n.censor)
+ggplot(tongue_tidy, aes(time, estimate, fill = strata)) + 
+  geom_line() +
+  geom_point(aes(shape = as.factor(n.censor)), size = 1) + 
+  scale_shape_manual(values=c(NA, 1:mx))+
+  geom_ribbon(aes(ymin=conf.low, ymax=conf.high), alpha=.25) + 
+  xlab("weeks") + 
+  ylab("Proportion Survival")
+```
+
+
