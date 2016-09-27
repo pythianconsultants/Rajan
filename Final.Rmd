@@ -3,9 +3,8 @@ title: "BMT Data Analysis"
 author: "Dhiraj Khanna"
 date: "27 September 2016"
 output:
-  word_document: default
-  pdf_document: default
-  html_document: default
+  html_document:
+    keep_md: true  
 ---
 
 ```{r setup, include=FALSE}
