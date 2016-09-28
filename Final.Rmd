@@ -54,7 +54,7 @@ Now let's plot the KM survival distribution for overall death.
 
 ```{r}
 fit_overall <- survfit(Surv(surv_data$TD,surv_data$cenin_dead)~1,conf.type = "log-log")
-ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4,pval = T)
 ```
 
 We can have a look at the model.
@@ -67,7 +67,7 @@ summary(fit_overall)
 ```{r}
 RF <- na.omit(select(surv_data, RenalFailure, TD, cenin_dead))
 fit_RF <- survfit(Surv(TD,cenin_dead)~RenalFailure,data=RF)
-ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4)
+ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_RF)
 ```
 
@@ -76,7 +76,7 @@ summary(fit_RF)
 ```{r}
 PC <- na.omit(select(surv_data, Plasmacytoma, TD, cenin_dead))
 fit_PC <- survfit(Surv(TD,cenin_dead)~Plasmacytoma,data=PC)
-ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_PC)
 ```
 
@@ -85,7 +85,7 @@ summary(fit_PC)
 ```{r}
 RSPre <- na.omit(select(surv_data, RemissionStatusPreTx, TD, cenin_dead))
 fit_RSPre <- survfit(Surv(TD,cenin_dead)~RemissionStatusPreTx,data=RSPre)
-ggsurvplot(fit_RSPre,risk.table = T,risk.table.height = 0.4)
+ggsurvplot(fit_RSPre,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_RSPre)
 ```
 
@@ -94,7 +94,7 @@ summary(fit_RSPre)
 ```{r}
 RSPost <- na.omit(select(surv_data, RemissionStatusPostTx, TD, cenin_dead))
 fit_RSPost <- survfit(Surv(TD,cenin_dead)~RemissionStatusPostTx,data=RSPost)
-ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_RSPost)
 ```
 
@@ -103,7 +103,7 @@ summary(fit_RSPost)
 ```{r}
 thp <- na.omit(select(surv_data, TotalNoTherapy, TD, cenin_dead))
 fit_thp <- survfit(Surv(TD,cenin_dead)~TotalNoTherapy,data=thp)
-ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
 ```
 
@@ -118,7 +118,7 @@ iss$ISS <- factor(iss$ISS)
 iss$TD <- as.numeric(iss$TD)
 iss$cenin_dead <- as.numeric(iss$cenin_dead)
 fit_iss <- survfit(Surv(TD,cenin_dead)~ISS,data=iss)
-ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
 ```
 
@@ -142,7 +142,7 @@ Now that the data is ready, we can do a similar analysis. Start off with an over
 
 ```{r}
 fit_overall <- survfit(Surv(rlp_data$TD_R,rlp_data$relapse)~1,conf.type = "log-log")
-ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4,pval = T)
 ```
 
 We can have a look at the model.
@@ -155,7 +155,7 @@ summary(fit_overall)
 ```{r}
 RF <- na.omit(select(rlp_data, RenalFailure, TD_R, relapse))
 fit_RF <- survfit(Surv(TD_R,relapse)~RenalFailure,data=RF)
-ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4)
+ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_RF)
 ```
 
@@ -164,7 +164,7 @@ summary(fit_RF)
 ```{r}
 PC <- na.omit(select(rlp_data, Plasmacytoma, TD_R, relapse))
 fit_PC <- survfit(Surv(TD_R,relapse)~Plasmacytoma,data=PC)
-ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_PC)
 ```
 
@@ -173,7 +173,7 @@ summary(fit_PC)
 ```{r}
 RSPre <- na.omit(select(rlp_data, RemissionStatusPreTx, TD_R, relapse))
 fit_RSPre <- survfit(Surv(TD_R,relapse)~RemissionStatusPreTx,data=RSPre)
-ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_RSPre)
 ```
 
@@ -182,7 +182,7 @@ summary(fit_RSPre)
 ```{r}
 RSPost <- na.omit(select(rlp_data, RemissionStatusPostTx, TD_R, relapse))
 fit_RSPost <- survfit(Surv(TD_R,relapse)~RemissionStatusPostTx,data=RSPost)
-ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_RSPost)
 ```
 
@@ -191,7 +191,7 @@ summary(fit_RSPost)
 ```{r}
 thp <- na.omit(select(rlp_data, TotalNoTherapy, TD_R, relapse))
 fit_thp <- survfit(Surv(TD_R,relapse)~TotalNoTherapy,data=thp)
-ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
 ```
 
@@ -206,7 +206,36 @@ iss$ISS <- factor(iss$ISS)
 iss$TD_R <- as.numeric(iss$TD_R)
 iss$relapse <- as.numeric(iss$relapse)
 fit_iss <- survfit(Surv(TD_R,relapse)~ISS,data=iss)
-ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4)
+ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
+```
+
+### Year of Transplant
+
+We will make three groups for year of transplant - 1999 to 2005, 2006-2010, 2011 to present.
+
+```{r}
+surv_data <- mutate(surv_data, trans_year=ifelse(year(surv_data$Transplant.Date)<=2005,"Group A",
+                     ifelse(year(surv_data$Transplant.Date)<=2010,"Group B","Group C")))
+```
+
+Now let's see the survival plot for both death date and relapse date.
+
+### Year of Transplant - Death Date
+```{r}
+YOT <- na.omit(select(surv_data, trans_year, TD, cenin_dead))
+fit_YOT <- survfit(Surv(TD,cenin_dead)~trans_year,data=YOT)
+ggsurvplot(fit_YOT,risk.table = T,risk.table.height = 0.4,pval = T)
+summary(fit_YOT)
+```
+
+### Year of Transplant - Relapse Date
+
+```{r}
+rlp_data <- cbind(surv_data,relapse)
+YOT_R <- na.omit(select(rlp_data, trans_year, TD_R, relapse))
+fit_YOT_R <- survfit(Surv(TD_R,relapse)~trans_year,data=YOT_R)
+ggsurvplot(fit_YOT_R,risk.table = T, risk.table.height = 0.4,pval = T)
+summary(fit_YOT_R)
 ```
 
