@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This analysis is with the new data.
+This analysis is with the latest data received today (29 Sep 16).
 
 ##Analysis on Death Date
 
@@ -27,7 +27,7 @@ library(broom)
 library(survminer)
 
 #Read in the data
-BMT <- read.csv("BMT_Latest.csv",na.strings=c("", "NA"))
+BMT <- read.csv("BMT_29Sep.csv",na.strings=c("", "NA"))
 
 #Select variables of interest
 BMT1 <- select(BMT, TypeOfMM, Transplant.Date, C.Status,Death.date, Last.Follow.up,M.protein..,RenalFailure,Plasmacytoma,RelapseDate,ISS,TotalNoTherapy,RemissionStatusPreTx,RemissionStatusPostTx)
@@ -60,6 +60,7 @@ ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4,pval = T)
 We can have a look at the model.
 ```{r}
 summary(fit_overall)
+print(fit_overall)
 ```
 
 ### Renal Failure
@@ -69,6 +70,7 @@ RF <- na.omit(select(surv_data, RenalFailure, TD, cenin_dead))
 fit_RF <- survfit(Surv(TD,cenin_dead)~RenalFailure,data=RF)
 ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_RF)
+print(fit_RF)
 ```
 
 ### Plasmacytoma
@@ -78,6 +80,7 @@ PC <- na.omit(select(surv_data, Plasmacytoma, TD, cenin_dead))
 fit_PC <- survfit(Surv(TD,cenin_dead)~Plasmacytoma,data=PC)
 ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_PC)
+print(fit_PC)
 ```
 
 ### Remission Status Before
@@ -87,6 +90,7 @@ RSPre <- na.omit(select(surv_data, RemissionStatusPreTx, TD, cenin_dead))
 fit_RSPre <- survfit(Surv(TD,cenin_dead)~RemissionStatusPreTx,data=RSPre)
 ggsurvplot(fit_RSPre,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_RSPre)
+print(fit_RSPre)
 ```
 
 ### Remission Status After
@@ -94,8 +98,9 @@ summary(fit_RSPre)
 ```{r}
 RSPost <- na.omit(select(surv_data, RemissionStatusPostTx, TD, cenin_dead))
 fit_RSPost <- survfit(Surv(TD,cenin_dead)~RemissionStatusPostTx,data=RSPost)
-ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4,pval = T)
+ggsurvplot(fit_RSPost,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_RSPost)
+print(fit_RSPost)
 ```
 
 ### Number of Therapies
@@ -105,21 +110,23 @@ thp <- na.omit(select(surv_data, TotalNoTherapy, TD, cenin_dead))
 fit_thp <- survfit(Surv(TD,cenin_dead)~TotalNoTherapy,data=thp)
 ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
+print(fit_thp)
 ```
 
 ### ISS
 
-Values 'II' and 'III' have been coerced to a single value - 'II'.
+Values 'I' and 'II' have been coerced to a single value - 'I'.
 
 ```{r}
 iss <- na.omit(select(surv_data, ISS, TD, cenin_dead))
-iss[iss=='III',] <- "II"
+iss[iss=='II',] <- "I"
 iss$ISS <- factor(iss$ISS)
 iss$TD <- as.numeric(iss$TD)
 iss$cenin_dead <- as.numeric(iss$cenin_dead)
 fit_iss <- survfit(Surv(TD,cenin_dead)~ISS,data=iss)
 ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
+print(fit_thp)
 ```
 
 ## Analysis on Relapse Date
@@ -148,6 +155,7 @@ ggsurvplot(fit_overall,risk.table = T, risk.table.height = 0.4,pval = T)
 We can have a look at the model.
 ```{r}
 summary(fit_overall)
+print(fit_overall)
 ```
 
 ### Renal Failure
@@ -157,6 +165,7 @@ RF <- na.omit(select(rlp_data, RenalFailure, TD_R, relapse))
 fit_RF <- survfit(Surv(TD_R,relapse)~RenalFailure,data=RF)
 ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_RF)
+print(fit_RF)
 ```
 
 ### Plasmacytoma
@@ -166,6 +175,7 @@ PC <- na.omit(select(rlp_data, Plasmacytoma, TD_R, relapse))
 fit_PC <- survfit(Surv(TD_R,relapse)~Plasmacytoma,data=PC)
 ggsurvplot(fit_PC,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_PC)
+print(fit_PC)
 ```
 
 ### Remission Status Before
@@ -175,6 +185,7 @@ RSPre <- na.omit(select(rlp_data, RemissionStatusPreTx, TD_R, relapse))
 fit_RSPre <- survfit(Surv(TD_R,relapse)~RemissionStatusPreTx,data=RSPre)
 ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_RSPre)
+print(fit_RSPre)
 ```
 
 ### Remission Status After
@@ -184,6 +195,7 @@ RSPost <- na.omit(select(rlp_data, RemissionStatusPostTx, TD_R, relapse))
 fit_RSPost <- survfit(Surv(TD_R,relapse)~RemissionStatusPostTx,data=RSPost)
 ggsurvplot(fit_RSPre,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_RSPost)
+print(fit_RSPost)
 ```
 
 ### Number of Therapies
@@ -193,6 +205,7 @@ thp <- na.omit(select(rlp_data, TotalNoTherapy, TD_R, relapse))
 fit_thp <- survfit(Surv(TD_R,relapse)~TotalNoTherapy,data=thp)
 ggsurvplot(fit_thp,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
+print(fit_thp)
 ```
 
 ### ISS
@@ -208,6 +221,7 @@ iss$relapse <- as.numeric(iss$relapse)
 fit_iss <- survfit(Surv(TD_R,relapse)~ISS,data=iss)
 ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_thp)
+print(fit_thp)
 ```
 
 ### Year of Transplant
@@ -227,6 +241,7 @@ YOT <- na.omit(select(surv_data, trans_year, TD, cenin_dead))
 fit_YOT <- survfit(Surv(TD,cenin_dead)~trans_year,data=YOT)
 ggsurvplot(fit_YOT,risk.table = T,risk.table.height = 0.4,pval = T)
 summary(fit_YOT)
+print(fit_YOT)
 ```
 
 ### Year of Transplant - Relapse Date
@@ -237,5 +252,6 @@ YOT_R <- na.omit(select(rlp_data, trans_year, TD_R, relapse))
 fit_YOT_R <- survfit(Surv(TD_R,relapse)~trans_year,data=YOT_R)
 ggsurvplot(fit_YOT_R,risk.table = T, risk.table.height = 0.4,pval = T)
 summary(fit_YOT_R)
+print(fit_YOT_R)
 ```
 
