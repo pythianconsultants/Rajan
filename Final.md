@@ -422,21 +422,10 @@ print(fit_thp)
 Values 'I' and 'II' have been coerced to a single value - 'I'.
 
 ``` r
+surv_data$ISS[surv_data$ISS=="II"] <- "I"
 iss <- na.omit(select(surv_data, ISS, TD, cenin_dead))
-iss[iss=='II',] <- "I"
-iss$ISS <- factor(iss$ISS)
-iss$TD <- as.numeric(iss$TD)
-```
 
-    ## Warning: NAs introduced by coercion
-
-``` r
-iss$cenin_dead <- as.numeric(iss$cenin_dead)
-```
-
-    ## Warning: NAs introduced by coercion
-
-``` r
+iss$ISS <- as.factor(iss$ISS)
 fit_iss <- survfit(Surv(TD,cenin_dead)~ISS,data=iss)
 ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4,pval = T)
 ```
@@ -916,20 +905,10 @@ Values 'II' and 'III' have been coerced to a single value - 'II'.
 
 ``` r
 iss <- na.omit(select(rlp_data, ISS, TD_R, relapse))
-iss[iss=='III',] <- "II"
+iss[iss=='II',] <- "I"
 iss$ISS <- factor(iss$ISS)
 iss$TD_R <- as.numeric(iss$TD_R)
-```
-
-    ## Warning: NAs introduced by coercion
-
-``` r
 iss$relapse <- as.numeric(iss$relapse)
-```
-
-    ## Warning: NAs introduced by coercion
-
-``` r
 fit_iss <- survfit(Surv(TD_R,relapse)~ISS,data=iss)
 ggsurvplot(fit_iss,risk.table = T, risk.table.height = 0.4,pval = T)
 ```
