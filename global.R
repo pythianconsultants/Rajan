@@ -44,4 +44,11 @@ rlp_data <- cbind(surv_data,relapse)
 rlp_data$ISS[rlp_data$ISS=="II"] <- "I"
 rlp_data$ISS <- factor((rlp_data$ISS))
 
+########################################################
+#Clinical Trials
 
+dat <- read.csv("DBP.csv")
+library(xtable)
+print(xtable(dat, digits=0, align=rep("c", 1+ncol(dat)),
+             caption="Diastolic Blood Pressure Trial Data.",label = "ANOVA.data.DBP"),
+      table.placement = "htbp",caption.placement = "top",include.rownames=FALSE)

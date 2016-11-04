@@ -33,20 +33,29 @@ shinyServer(function(input, output) {
   
 
   
+  # output$events <- renderPlot({
+  #   if(input$analysis=='TD'){
+  #   #RF <- na.omit(select_(rlp_data, .dots=c(input$event, "TD", "cenin_dead")))  
+  #   fit_RF <- survfit(Surv(TD,cenin_dead)~.(input$event),data=rlp_data)
+  #   ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
+  #   } else{
+  #     RF <- na.omit(select_(rlp_data, .dots=c(input$event, "TD_R", "relapse")))
+  #     rlp_data[colnames(rlp_data)==input$event]
+  #     fit_RF <- survfit(Surv(TD_R,relapse)~RF[,1],data=RF)
+  #     ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
+  #   }
+  # })
+  
   output$events <- renderPlot({
+    print(str(input$event))
     if(input$analysis=='TD'){
-    RF <- na.omit(select(rlp_data, input$event, TD, cenin_dead ))
-    x <- RF[,3]
-    timevar <- RF[,2]
-    fit_RF <- survfit(Surv(timevar,x)~RF[,1],data=RF)
-    ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
+      fit_RF <- survfit(Surv(TD,cenin_dead)~input$event,data=rlp_data)
+      ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
     } else{
-      RF <- na.omit(select(rlp_data, input$event, TD_R, relapse ))
-      x <- RF[,3]
-      timevar <- RF[,2]
-      fit_RF <- survfit(Surv(timevar,x)~RF[,1],data=RF)
-      ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T) 
+      fit_RF <- survfit(Surv(TD_R,relapse)~input$event,data=rlp_data)
+      ggsurvplot(fit_RF,risk.table = T,risk.table.height = 0.4,pval = T)
     }
+    
   })
   
 })
